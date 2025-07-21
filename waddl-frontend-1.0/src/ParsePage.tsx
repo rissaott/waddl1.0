@@ -1,12 +1,23 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import ThemeToggle from './components/ThemeToggle';
 import './ParsePage.css';
 
 function ParsePage() {
   const navigate = useNavigate();
+  const [code, setCode] = useState('// Enter your code here...\n\nfunction example() {\n  console.log("Hello, Waddl!");\n}');
 
   const handleBackClick = () => {
     navigate('/');
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCode(e.target.value);
+  };
+
+  const handleRunCode = () => {
+    // TODO: Implement code parsing logic
+    console.log('Running code:', code);
   };
 
   return (
@@ -18,18 +29,42 @@ function ParsePage() {
           <p className="parse-subtitle">Code parsing and analysis workspace</p>
         </div>
         <div className="parse-workspace">
-          <div className="workspace-placeholder">
-            <div className="placeholder-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10,9 9,9 8,9"/>
-              </svg>
+          <div className="workspace-split">
+            <div className="code-editor-section">
+              <div className="editor-header">
+                <span className="editor-title">Code Editor</span>
+                <button className="run-button" onClick={handleRunCode}>
+                  <svg className="run-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polygon points="5,3 19,12 5,21"/>
+                  </svg>
+                  <span>Run</span>
+                </button>
+              </div>
+              <textarea
+                className="code-editor"
+                value={code}
+                onChange={handleCodeChange}
+                placeholder="Enter your code here..."
+                spellCheck={false}
+              />
             </div>
-            <h3 className="placeholder-title">Ready to Parse</h3>
-            <p className="placeholder-text">Your parsing functionality will appear here</p>
+            <div className="parse-results-section">
+              <div className="results-header">
+                <span className="results-title">Parse Results</span>
+              </div>
+              <div className="results-content">
+                <div className="ready-state">
+                  <div className="ready-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M9 12l2 2 4-4"/>
+                      <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                    </svg>
+                  </div>
+                  <h3 className="ready-title">Ready to Parse</h3>
+                  <p className="ready-text">Your parsed code will appear here</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="parse-actions">
