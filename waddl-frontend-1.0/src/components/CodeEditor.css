@@ -1,0 +1,38 @@
+.code-editor-container {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.code-editor-container .cm-editor {
+  height: 100%;
+  font-family: 'Monolisa', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.code-editor-container .cm-editor .cm-scroller {
+  font-family: 'Monolisa', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Ensure the editor takes full height */
+.code-editor-container .cm-editor .cm-content {
+  padding: 16px;
+}
+
+/* Custom scrollbar styling */
+.code-editor-container .cm-editor .cm-scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.code-editor-container .cm-editor .cm-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.code-editor-container .cm-editor .cm-scroller::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+}
+
+.code-editor-container .cm-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+} 

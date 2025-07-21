@@ -14,7 +14,7 @@ function HomePage() {
       <ThemeToggle />
       <div className="home-content">
         <div className="home-header">
-          <h1 className="home-title">Waddl</h1>
+          <h1 className="home-title">waddl</h1>
           <p className="home-subtitle">Welcome to your code parsing workspace</p>
         </div>
         <div className="action-section">

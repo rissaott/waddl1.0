@@ -1,18 +1,32 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ThemeToggle from './components/ThemeToggle';
+import CodeEditor from './components/CodeEditor';
 import './ParsePage.css';
 
 function ParsePage() {
   const navigate = useNavigate();
-  const [code, setCode] = useState('// Enter your code here...\n\nfunction example() {\n  console.log("Hello, Waddl!");\n}');
+  const [code, setCode] = useState(`# Welcome to Waddl!
+# Enter your Python code here
+
+def greet(name):
+    """A simple greeting function"""
+    return f"Hello, {name}!"
+
+# Example usage
+result = greet("Waddl")
+print(result)
+
+# You can add more Python code here
+for i in range(3):
+    print(f"Count: {i}")`);
 
   const handleBackClick = () => {
     navigate('/');
   };
 
-  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCode(e.target.value);
+  const handleCodeChange = (value: string) => {
+    setCode(value);
   };
 
   const handleRunCode = () => {
@@ -23,9 +37,15 @@ function ParsePage() {
   return (
     <div className="parse-page">
       <ThemeToggle />
+      <button className="back-button-top" onClick={handleBackClick}>
+        <svg className="back-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Back to Home</span>
+      </button>
       <div className="parse-content">
         <div className="parse-header">
-          <h1 className="parse-title">Waddl</h1>
+          <h1 className="parse-title">waddl</h1>
           <p className="parse-subtitle">Code parsing and analysis workspace</p>
         </div>
         <div className="parse-workspace">
@@ -40,18 +60,15 @@ function ParsePage() {
                   <span>Run</span>
                 </button>
               </div>
-              <textarea
-                className="code-editor"
-                value={code}
-                onChange={handleCodeChange}
-                placeholder="Enter your code here..."
-                spellCheck={false}
-              />
+              <div className="editor-container">
+                <CodeEditor
+                  value={code}
+                  onChange={handleCodeChange}
+                  placeholder="Enter your Python code here..."
+                />
+              </div>
             </div>
             <div className="parse-results-section">
-              <div className="results-header">
-                <span className="results-title">Parse Results</span>
-              </div>
               <div className="results-content">
                 <div className="ready-state">
                   <div className="ready-icon">
@@ -66,14 +83,6 @@ function ParsePage() {
               </div>
             </div>
           </div>
-        </div>
-        <div className="parse-actions">
-          <button className="back-button" onClick={handleBackClick}>
-            <svg className="back-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>Back to Home</span>
-          </button>
         </div>
       </div>
     </div>
