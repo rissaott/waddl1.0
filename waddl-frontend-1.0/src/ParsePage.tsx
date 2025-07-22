@@ -26,6 +26,7 @@ for i in range(3):
   const [parsedData, setParsedData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [detectedLanguage, setDetectedLanguage] = useState<string>('python');
 
   const handleBackClick = () => {
     navigate('/');
@@ -33,6 +34,10 @@ for i in range(3):
 
   const handleCodeChange = (value: string) => {
     setCode(value);
+  };
+
+  const handleLanguageChange = (language: string) => {
+    setDetectedLanguage(language);
   };
 
   const handleRunCode = async () => {
@@ -69,7 +74,7 @@ for i in range(3):
           <div className="workspace-split">
             <div className="code-editor-section">
               <div className="editor-header">
-                <span className="editor-title">Code Editor</span>
+                <span className="language-badge">{detectedLanguage}</span>
                 <button className="run-button" onClick={handleRunCode} disabled={isLoading}>
                   <svg className="run-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="5,3 19,12 5,21"/>
@@ -81,6 +86,7 @@ for i in range(3):
                 <CodeEditor
                   value={code}
                   onChange={handleCodeChange}
+                  onLanguageChange={handleLanguageChange}
                   placeholder="Enter your Python code here..."
                 />
               </div>

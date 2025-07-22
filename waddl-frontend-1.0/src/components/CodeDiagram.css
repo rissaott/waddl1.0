@@ -155,12 +155,12 @@
   color: #bd93f9;
 }
 
-.diagram-node.number {
+.diagram-node.int {
   border-color: #ff79c6;
   background: linear-gradient(135deg, rgba(255, 121, 198, 0.1) 0%, rgba(255, 121, 198, 0.05) 100%);
 }
 
-.diagram-node.number .node-type {
+.diagram-node.int .node-type {
   color: #ff79c6;
 }
 

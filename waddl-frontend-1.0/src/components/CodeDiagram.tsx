@@ -116,7 +116,7 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
     } else {
       nodes.push({
         id: `value-${depth}`,
-        type: typeof node,
+        type: typeof node === 'number' ? 'int' : typeof node,
         value: String(node),
         children: []
       });
