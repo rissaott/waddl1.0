@@ -1,7 +1,9 @@
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ThemeToggle from './components/ThemeToggle';
 import CodeEditor from './components/CodeEditor';
+import CodeDiagram from './components/CodeDiagram';
 import './ParsePage.css';
 
 function ParsePage() {
@@ -21,6 +23,10 @@ print(result)
 for i in range(3):
     print(f"Count: {i}")`);
 
+  const [parsedData, setParsedData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleBackClick = () => {
     navigate('/');
   };
@@ -29,9 +35,20 @@ for i in range(3):
     setCode(value);
   };
 
-  const handleRunCode = () => {
-    // TODO: Implement code parsing logic
-    console.log('Running code:', code);
+  const handleRunCode = async () => {
+    setParsedData(null);
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('http://localhost:8000/parse', { code });
+      const result = response.data.parsed || response.data.error;
+      setParsedData(result);
+    } catch (err) {
+      setError('Failed to connect to backend');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,11 +70,11 @@ for i in range(3):
             <div className="code-editor-section">
               <div className="editor-header">
                 <span className="editor-title">Code Editor</span>
-                <button className="run-button" onClick={handleRunCode}>
+                <button className="run-button" onClick={handleRunCode} disabled={isLoading}>
                   <svg className="run-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polygon points="5,3 19,12 5,21"/>
                   </svg>
-                  <span>Run</span>
+                  <span>{isLoading ? 'Parsing...' : 'Run'}</span>
                 </button>
               </div>
               <div className="editor-container">
@@ -70,16 +87,30 @@ for i in range(3):
             </div>
             <div className="parse-results-section">
               <div className="results-content">
-                <div className="ready-state">
-                  <div className="ready-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M9 12l2 2 4-4"/>
-                      <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
-                    </svg>
+                {isLoading ? (
+                  <div className="loading-state">
+                    <div className="loading-spinner"></div>
+                    <p>Parsing your code...</p>
                   </div>
-                  <h3 className="ready-title">Ready to Parse</h3>
-                  <p className="ready-text">Your parsed code will appear here</p>
-                </div>
+                ) : parsedData ? (
+                  <CodeDiagram parsedData={parsedData} />
+                ) : error ? (
+                  <div className="error-message">
+                    <div className="error-icon">⚠️</div>
+                    <p>{error}</p>
+                  </div>
+                ) : (
+                  <div className="ready-state">
+                    <div className="ready-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/>
+                      </svg>
+                    </div>
+                    <h3 className="ready-title">Ready to Parse</h3>
+                    <p className="ready-text">Your parsed code will appear here</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -89,4 +120,4 @@ for i in range(3):
   );
 }
 
-export default ParsePage; 
+export default ParsePage;
