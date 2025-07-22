@@ -247,9 +247,6 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
           className="top-panel"
           style={{ height: `${topPanelHeight}%` }}
         >
-          <div className="panel-header">
-            <h3 className="panel-title">Code Structure</h3>
-          </div>
           <div className="diagram-container">
             {diagramNodes.map((node) => (
               <div key={node.id} className={`diagram-node ${node.type}`}>
