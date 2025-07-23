@@ -14,7 +14,7 @@ interface DiagramNode {
 }
 
 const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
-  const [topPanelHeight, setTopPanelHeight] = useState(70); // percentage
+  const [topPanelHeight, setTopPanelHeight] = useState(70);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   let idCounter = 0;
@@ -27,11 +27,8 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !containerRef.current) return;
-    
     const containerRect = containerRef.current.getBoundingClientRect();
     const newTopHeight = ((e.clientY - containerRect.top) / containerRect.height) * 100;
-    
-    // Constrain to reasonable bounds (30% - 80%)
     const constrainedHeight = Math.max(30, Math.min(80, newTopHeight));
     setTopPanelHeight(constrainedHeight);
   };
@@ -159,12 +156,35 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
             ]
           });
           break;
-        default:
-          Object.entries(node).forEach(([key, value]) => {
-            if (key !== 'type' && key !== 'lineno' && key !== 'col_offset') {
-              nodes.push(...renderNode(value, depth + 1));
-            }
+        case 'and':
+        case 'or':
+        case 'not':
+          // Handle logical operators from JSON structure
+          const operatorValue = node.type === 'and' ? 'AND' : node.type === 'or' ? 'OR' : 'NOT';
+          nodes.push({
+            id: `logic-${node.type}-${depth}`,
+            type: 'logic-gate',
+            value: operatorValue,
+            children: renderNode(node.values || node.value, depth + 1)
           });
+          break;
+        default:
+          // Check if this is a simple value node
+          if (node.type && (node.type === 'string' || node.type === 'int' || node.type === 'number' || node.type === 'boolean')) {
+            nodes.push({
+              id: `value-${depth}-${nextId()}`,
+              type: node.type === 'number' ? 'int' : node.type,
+              value: String(node.value || node),
+              children: []
+            });
+          } else {
+            // Handle other object properties
+            Object.entries(node).forEach(([key, value]) => {
+              if (key !== 'type' && key !== 'lineno' && key !== 'col_offset') {
+                nodes.push(...renderNode(value, depth + 1));
+              }
+            });
+          }
           break;
       }
     } else {
@@ -191,7 +211,6 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
   };
 
   const renderOperator = (op: any): string => {
-    if (!op || typeof op !== 'string') return '?';
     const opMap: Record<string, string> = {
       Add: '+', Sub: '-', Mult: '*', Div: '/', Mod: '%', Pow: '^',
       And: '∧', Or: '∨'
@@ -201,29 +220,23 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
 
   const formatJson = (obj: any, indent: number = 0): string => {
     const spaces = '  '.repeat(indent);
-    
     if (obj === null) return 'null';
     if (typeof obj === 'string') return `"${obj}"`;
     if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj);
-    
     if (Array.isArray(obj)) {
       if (obj.length === 0) return '[]';
       const items = obj.map(item => spaces + '  ' + formatJson(item, indent + 1)).join(',\n');
       return `[\n${items}\n${spaces}]`;
     }
-    
     if (typeof obj === 'object') {
       const keys = Object.keys(obj);
       if (keys.length === 0) return '{}';
-      
       const items = keys.map(key => {
         const value = formatJson(obj[key], indent + 1);
         return `${spaces}  "${key}": ${value}`;
       }).join(',\n');
-      
       return `{\n${items}\n${spaces}}`;
     }
-    
     return String(obj);
   };
 
@@ -239,42 +252,28 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
     );
   }
 
+  const renderDiagram = (node: DiagramNode): React.ReactElement => (
+    <div key={node.id} className={`diagram-node ${node.type}`}>
+      <div className="node-content">
+        <span className="node-type">{node.type}</span>
+        <span className="node-value">{node.value}</span>
+      </div>
+      {node.children && node.children.length > 0 && (
+        <div className="node-children">
+          {node.children.map(renderDiagram)}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="code-diagram">
       <div className="split-panel-container" ref={containerRef}>
-        {/* Top Panel - Diagram */}
-        <div 
-          className="top-panel"
-          style={{ height: `${topPanelHeight}%` }}
-        >
+        <div className="top-panel" style={{ height: `${topPanelHeight}%` }}>
           <div className="diagram-container">
-            {diagramNodes.map((node) => (
-              <div key={node.id} className={`diagram-node ${node.type}`}>
-                <div className="node-content">
-                  <span className="node-type">{node.type}</span>
-                  <span className="node-value">{node.value}</span>
-                </div>
-                {node.children && node.children.length > 0 && (
-                  <div className="node-children">
-                    {node.children.map((child) => (
-                      <div key={child.id} className="child-node">
-                        <div className="connection-line"></div>
-                        <div className={`diagram-node ${child.type}`}>
-                          <div className="node-content">
-                            <span className="node-type">{child.type}</span>
-                            <span className="node-value">{child.value}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+            {diagramNodes.map(renderDiagram)}
           </div>
         </div>
-
-        {/* Resizable Divider */}
         <div 
           className={`panel-divider ${isDragging ? 'dragging' : ''}`}
           onMouseDown={handleMouseDown}
@@ -287,12 +286,7 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
             </div>
           </div>
         </div>
-
-        {/* Bottom Panel - JSON Tree */}
-        <div 
-          className="bottom-panel"
-          style={{ height: `${100 - topPanelHeight}%` }}
-        >
+        <div className="bottom-panel" style={{ height: `${100 - topPanelHeight}%` }}>
           <div className="panel-header">
             <h3 className="panel-title">Raw JSON Tree</h3>
           </div>
@@ -306,4 +300,3 @@ const CodeDiagram: React.FC<CodeDiagramProps> = ({ parsedData }) => {
 };
 
 export default CodeDiagram;
-
